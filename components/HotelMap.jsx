@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Loader2, Navigation, MapPin, Heart, Star, ChevronLeft, ChevronRight, SlidersHorizontal, Map as MapIcon, List, Search, X } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3002' : '');
 
 const HotelMap = ({ onBookHotel }) => {
     const mapRef = useRef(null);
