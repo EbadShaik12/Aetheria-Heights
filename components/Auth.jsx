@@ -74,7 +74,7 @@ const Auth = ({ onLogin }) => {
             onLogin(data);
         } catch (err) {
             console.error(err);
-            setError('Something went wrong. Please try again.');
+            setError('Network error: ' + (err?.message || String(err)));
         } finally {
             setIsLoading(false);
         }
@@ -110,7 +110,7 @@ const Auth = ({ onLogin }) => {
             setForgotPasswordStep('question');
         } catch (err) {
             console.error(err);
-            setError('Something went wrong. Please try again.');
+            setError('Network error: ' + (err?.message || String(err)));
         } finally {
             setIsLoading(false);
         }
