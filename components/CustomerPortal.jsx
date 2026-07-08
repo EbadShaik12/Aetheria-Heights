@@ -5,6 +5,8 @@ import { jsPDF } from "jspdf";
 import HotelMap from './HotelMap';
 import PlacesMap from './PlacesMap';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
 const ImageCarousel = ({ images, altText, className = "", imgClassName = "" }) => {
     const [currentIndex, setCurrentIndex] = React.useState(0);
 
@@ -333,7 +335,7 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
 
         setIsSubscribing(true);
         try {
-            const response = await fetch('http://localhost:3002/api/newsletter/subscribe', {
+            const response = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

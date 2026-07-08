@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ArrowRight, Lock, Mail, User as UserIcon, Loader2, ShieldCheck, Hotel, HelpCircle, KeyRound } from 'lucide-react';
 
-const API_BASE = 'http://localhost:3002';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
 const Auth = ({ onLogin }) => {
     const [isLogin, setIsLogin] = useState(true);

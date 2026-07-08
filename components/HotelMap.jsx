@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Loader2, Navigation, MapPin, Heart, Star, ChevronLeft, ChevronRight, SlidersHorizontal, Map as MapIcon, List, Search, X } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
 const HotelMap = ({ onBookHotel }) => {
     const mapRef = useRef(null);
     const [map, setMap] = useState(null);
@@ -30,15 +32,14 @@ const HotelMap = ({ onBookHotel }) => {
         "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=2070",
         "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=2025",
         "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2070",
-        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&q=80&w=2049",
-        "https://images.unsplash.com/photo-1590490360182-f33efe80a71d?auto=format&fit=crop&q=80&w=1974"
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&q=80&w=2070"
     ];
 
     // Fetch backend hotels initially
     useEffect(() => {
         const fetchHotels = async () => {
             try {
-                const response = await fetch('http://localhost:3002/api/hotels');
+                const response = await fetch(`${API_BASE}/api/hotels`);
                 if (response.ok) {
                     const data = await response.json();
                     setBackendHotels(data);
