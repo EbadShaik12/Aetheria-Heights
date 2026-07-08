@@ -10,7 +10,7 @@ dotenv.config({ path: '.env.local' });
 
 const app = express();
 const PORT = process.env.PORT || 3002;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/aetheria_heights';
+const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware
@@ -1057,19 +1057,32 @@ app.post('/api/feedbacks', async (req, res) => {
   }
 });
 
-// Connect to MongoDB and start server
-mongoose
-  .connect(MONGO_URI, { dbName: undefined })
-  .then(() => {
+// Serverless-safe MongoDB connection (cached across invocations)
+let isConnected = false;
+
+export async function connectDB() {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+  if (!MONGO_URI) {
+    throw new Error('MONGO_URI environment variable is not set');
+  }
+  try {
+    await mongoose.connect(MONGO_URI);
+    isConnected = true;
     console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    throw err;
+  }
+}
+
+// For local development, start the server normally
+if (process.env.NODE_ENV !== 'production') {
+  connectDB().then(() => {
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
+  }).catch(console.error);
+}
 
 export default app;
 
