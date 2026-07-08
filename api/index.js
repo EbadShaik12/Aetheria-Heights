@@ -1,7 +1,14 @@
 import app, { connectDB } from '../server.js';
 
-// Wrap the Express app to ensure DB is connected before every request
 export default async function handler(req, res) {
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('DB connection failed in handler:', err.message);
+    return res.status(500).json({
+      error: 'Database connection failed',
+      details: err.message
+    });
+  }
   return app(req, res);
 }

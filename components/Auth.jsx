@@ -61,10 +61,12 @@ const Auth = ({ onLogin }) => {
                 body: JSON.stringify(payload),
             });
 
-            const data = await res.json();
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch { data = { error: text }; }
 
             if (!res.ok) {
-                setError(data.error || 'Authentication failed');
+                setError(data.error || `Server error (${res.status})`);
                 setIsLoading(false);
                 return;
             }
