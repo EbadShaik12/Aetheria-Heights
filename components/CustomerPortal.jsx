@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Users, ArrowRight, Star, Wifi, Coffee, MapPin, X, CreditCard, CheckCircle, Loader2, QrCode, LogOut, Clock, Crown, ChevronLeft, ChevronRight, Banknote, Smartphone, Download, User as UserIcon, Settings, Shield, FileText, Upload, Trash2, Plus, AlertCircle, Sparkles, Music, Mic, Utensils, ShoppingBag, ChefHat, Minus, Mail, Phone, Map, Facebook, Instagram, Linkedin, Twitter, Camera, Lock, MessageCircle, HelpCircle, History, Info, Globe, Search, Menu } from 'lucide-react';
 import PanoramaViewer from './PanoramaViewer';
 import { jsPDF } from "jspdf";
