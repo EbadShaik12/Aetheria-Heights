@@ -1001,8 +1001,8 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                             </div>
                             <div className="mt-8 border-t border-white/10 pt-6">
                                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-aetheria-gold hover:bg-white/5 transition-all">
-                                    {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-aetheria-gold" /> : <><Upload className="w-8 h-8 text-gray-500 mb-2" /><span className="text-sm text-gray-400">Upload Document</span></>}
-                                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={handleUploadDocument} disabled={isUploading} />
+                                    {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-aetheria-gold" /> : <><Upload className="w-8 h-8 text-gray-500 mb-2" /><span className="text-sm text-gray-400">Upload Document or Image</span><span className="text-xs text-gray-600 mt-1">JPG, PNG, PDF, WEBP, DOC, any format</span></>}
+                                    <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.txt" onChange={handleUploadDocument} disabled={isUploading} />
                                 </label>
                             </div>
                         </div>
@@ -1614,8 +1614,8 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                                         <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg flex gap-3"><AlertCircle className="w-6 h-6 text-amber-500 flex-shrink-0" /><div><h4 className="text-amber-500 font-bold mb-1">Verification Required</h4><p className="text-sm text-gray-400">ID required.</p></div></div>
                                         <div className="border-t border-white/10 pt-6">
                                             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-aetheria-gold hover:bg-white/5 transition-all">
-                                                {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-aetheria-gold" /> : <><Upload className="w-8 h-8 text-gray-500 mb-2" /><span className="text-sm text-gray-400">Upload Document</span></>}
-                                                <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={handleUploadDocument} disabled={isUploading} />
+                                                {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-aetheria-gold" /> : <><Upload className="w-8 h-8 text-gray-500 mb-2" /><span className="text-sm text-gray-400">Upload Document or Image</span><span className="text-xs text-gray-600 mt-1">JPG, PNG, PDF, WEBP, DOC, any format</span></>}
+                                                <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.txt" onChange={handleUploadDocument} disabled={isUploading} />
                                             </label>
                                         </div>
 

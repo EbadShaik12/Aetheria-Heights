@@ -124,8 +124,12 @@ const profileSchema = new mongoose.Schema(
     paymentMethods: [{ type: mongoose.Schema.Types.Mixed }],
     documents: [
       {
-        fileName: String,
-        fileUrl: String,
+        id: { type: String },
+        type: { type: String, default: 'National ID' },
+        fileName: { type: String },
+        fileData: { type: String },
+        fileType: { type: String },
+        fileUrl: { type: String },
         uploadDate: { type: Date, default: Date.now },
         status: { type: String, enum: ['Pending', 'Verified', 'Rejected'], default: 'Pending' }
       }

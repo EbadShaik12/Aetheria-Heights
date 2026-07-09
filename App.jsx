@@ -200,7 +200,26 @@ const INITIAL_OFFERS = [
 ];
 
 const App = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+  // Restore session from localStorage on first load
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const token = localStorage.getItem('token');
+      const saved = localStorage.getItem('currentUser');
+      if (token && saved) {
+        const parsed = JSON.parse(saved);
+        // Simple token expiry check (JWT payload is base64 encoded)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 > Date.now()) {
+          return parsed;
+        } else {
+          // Token expired — clean up
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
+        }
+      }
+    } catch (e) { /* ignore parse errors */ }
+    return null;
+  });
   const [rooms, setRooms] = useState(INITIAL_ROOMS);
   const [halls, setHalls] = useState(INITIAL_HALLS);
   const [menuItems, setMenuItems] = useState(INITIAL_MENU);
@@ -270,11 +289,13 @@ const App = () => {
 
   const handleLogin = (user) => {
     // user comes from backend auth (/api/auth/login or /api/auth/register)
+    localStorage.setItem('currentUser', JSON.stringify(user));
     setCurrentUser(user);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
     setCurrentUser(null);
   };
 
