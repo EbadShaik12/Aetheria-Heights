@@ -4,6 +4,7 @@ import PanoramaViewer from './PanoramaViewer';
 import { jsPDF } from "jspdf";
 import HotelMap from './HotelMap';
 import PlacesMap from './PlacesMap';
+import StaggeredMenu from './StaggeredMenu';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3002' : '');
 
@@ -60,6 +61,7 @@ const ImageCarousel = ({ images, altText, className = "", imgClassName = "" }) =
 const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offers = [], user, profile, adminProfile, onCreateBooking, onAddDiningOrder, onAddFeedback, onUpdateProfile, onLogout }) => {
     const [view, setView] = useState(() => localStorage.getItem('customerView') || 'HOME');
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [isMobileDatesOpen, setIsMobileDatesOpen] = useState(false);
 
     useEffect(() => {
         localStorage.setItem('customerView', view);
@@ -1217,28 +1219,28 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
 
     return (
         <div className="min-h-screen bg-aetheria-navy text-white font-sans selection:bg-aetheria-gold selection:text-aetheria-navy flex flex-col">
-            {/* Navigation */}
-            <nav className="fixed top-0 w-full z-50 bg-aetheria-navy/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex justify-between items-center shadow-lg">
-                <div className="text-2xl font-serif font-bold text-white cursor-pointer flex items-center gap-2" onClick={() => { setView('HOME'); setIsMobileMenuOpen(false); }}>
+            {/* Desktop Navigation */}
+            <nav className="fixed top-0 w-full z-50 bg-aetheria-navy/90 backdrop-blur-md border-b border-white/10 px-6 py-4 hidden md:flex justify-between items-center shadow-lg">
+                <div className="text-2xl font-serif font-bold text-white cursor-pointer flex items-center gap-2" onClick={() => setView('HOME')}>
                     <span className="text-aetheria-gold">✦</span> Aetheria.
                 </div>
 
-                <div className="hidden md:flex bg-black/30 rounded-full p-1 border border-white/10">
+                <div className="flex bg-black/30 rounded-full p-1 border border-white/10">
                     <button onClick={() => setView('HOME')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${view === 'HOME' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-400 hover:text-white'}`}>Suites</button>
                     <button onClick={() => setView('HALLS')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${view === 'HALLS' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-400 hover:text-white'}`}>Event Halls</button>
                     <button onClick={() => setView('DINING')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${view === 'DINING' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-400 hover:text-white'}`}>Dining</button>
                     <button onClick={() => setView('HOTELS_MAP')} className={`px-6 py-2 rounded-full flex items-center gap-2 text-sm font-bold transition-all ${view === 'HOTELS_MAP' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-400 hover:text-white'}`}><MapPin className="w-3 h-3" /> Discover</button>
                 </div>
 
-                <div className="flex items-center gap-4 md:gap-6">
-                    {/* User Menu Dropdown (Simplified as visible buttons for this layout) */}
-                    <div className="hidden md:flex items-center gap-4 text-xs font-bold text-gray-400">
+                <div className="flex items-center gap-6">
+                    {/* User Menu Dropdown */}
+                    <div className="flex items-center gap-4 text-xs font-bold text-gray-400">
                         <button onClick={() => setView('MY_BOOKINGS')} className={`hover:text-white transition-colors ${view === 'MY_BOOKINGS' ? 'text-aetheria-gold' : ''}`}>My Bookings</button>
                         <button onClick={() => setView('FAQ')} className={`hover:text-white transition-colors ${view === 'FAQ' ? 'text-aetheria-gold' : ''}`}>FAQ</button>
                         <button onClick={() => setView('FEEDBACK')} className={`hover:text-white transition-colors ${view === 'FEEDBACK' ? 'text-aetheria-gold' : ''}`}>Feedback</button>
                     </div>
 
-                    <button onClick={() => setView('PROFILE')} className="hidden md:flex items-center gap-2 text-sm text-gray-200 hover:text-white transition-colors">
+                    <button onClick={() => setView('PROFILE')} className="flex items-center gap-2 text-sm text-gray-200 hover:text-white transition-colors">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold overflow-hidden border ${view === 'PROFILE' ? 'border-aetheria-gold bg-aetheria-gold text-aetheria-navy' : 'border-aetheria-gold/30 bg-aetheria-gold text-aetheria-navy'}`}>
                             {profile.profileImage ? (
                                 <img src={profile.profileImage} alt="User" className="w-full h-full object-cover" />
@@ -1247,30 +1249,38 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                             )}
                         </div>
                     </button>
-
-                    {/* Mobile Hamburger toggle */}
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="flex md:hidden text-gray-300 hover:text-white transition-colors p-1 rounded hover:bg-white/5 border border-white/10 bg-black/20">
-                        {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                    </button>
-
                     <button onClick={onLogout} className="text-gray-400 hover:text-red-400 transition-colors"><LogOut className="w-5 h-5" /></button>
                 </div>
             </nav>
 
-            {/* Mobile Navigation Dropdown Menu */}
-            {isMobileMenuOpen && (
-                <div className="fixed top-[68px] left-0 w-full z-40 bg-[#0B1120] border-b border-white/10 p-6 flex flex-col gap-3 animate-in slide-in-from-top duration-200 md:hidden">
-                    <button onClick={() => { setView('HOME'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'HOME' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Suites</button>
-                    <button onClick={() => { setView('HALLS'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'HALLS' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Event Halls</button>
-                    <button onClick={() => { setView('DINING'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'DINING' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Dining</button>
-                    <button onClick={() => { setView('HOTELS_MAP'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'HOTELS_MAP' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Discover</button>
-                    <div className="border-t border-white/10 my-2"></div>
-                    <button onClick={() => { setView('PROFILE'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'PROFILE' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>My Profile</button>
-                    <button onClick={() => { setView('MY_BOOKINGS'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'MY_BOOKINGS' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>My Reservations</button>
-                    <button onClick={() => { setView('FAQ'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'FAQ' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>FAQ</button>
-                    <button onClick={() => { setView('FEEDBACK'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'FEEDBACK' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Feedback</button>
-                </div>
-            )}
+            {/* Mobile Navigation (StaggeredMenu from React Bits) */}
+            <div className="block md:hidden">
+                <StaggeredMenu
+                    position="right"
+                    items={[
+                        { label: 'Suites', ariaLabel: 'Go to suites', onClick: () => setView('HOME') },
+                        { label: 'Event Halls', ariaLabel: 'Go to event halls', onClick: () => setView('HALLS') },
+                        { label: 'Dining', ariaLabel: 'Go to dining menu', onClick: () => setView('DINING') },
+                        { label: 'Discover', ariaLabel: 'Discover local map', onClick: () => setView('HOTELS_MAP') },
+                        { label: 'Profile', ariaLabel: 'View your profile', onClick: () => setView('PROFILE') },
+                        { label: 'My Bookings', ariaLabel: 'View reservations', onClick: () => setView('MY_BOOKINGS') },
+                        { label: 'FAQ', ariaLabel: 'Frequently asked questions', onClick: () => setView('FAQ') },
+                        { label: 'Feedback', ariaLabel: 'Send us feedback', onClick: () => setView('FEEDBACK') }
+                    ]}
+                    socialItems={[
+                        { label: 'Sign Out', onClick: onLogout }
+                    ]}
+                    displaySocials={true}
+                    displayItemNumbering={true}
+                    menuButtonColor="#fff"
+                    openMenuButtonColor="#fff"
+                    changeMenuColorOnOpen={true}
+                    colors={['#0F172A', '#D4AF37']}
+                    logoUrl=""
+                    accentColor="#D4AF37"
+                    isFixed={true}
+                />
+            </div>
 
             <div className="pt-20 flex-grow">
 
@@ -1289,8 +1299,8 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                             </div>
                         </div>
 
-                        {/* Sticky Booking Bar */}
-                        <div className="sticky top-[72px] z-40 bg-[#0b1528]/85 backdrop-blur-xl border-b border-white/10 py-5 px-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in duration-500">
+                        {/* Sticky Booking Bar (Desktop Only) */}
+                        <div className="sticky top-[72px] z-40 bg-[#0b1528]/85 backdrop-blur-xl border-b border-white/10 py-5 px-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in duration-500 hidden md:block">
                             <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-5 items-center justify-between bg-white/[0.02] border border-white/10 p-3 rounded-2xl shadow-inner shadow-black/40">
                                 <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto flex-grow">
                                     <div className="flex-1 flex items-center gap-3.5 bg-white/[0.03] hover:bg-white/[0.06] px-4 py-3 rounded-xl border border-white/5 hover:border-aetheria-gold/30 transition-all duration-300 min-w-[240px] shadow-sm">
@@ -1326,6 +1336,77 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                                 </button>
                             </div>
                         </div>
+
+                        {/* Floating Mobile Dates Action Button */}
+                        <button
+                            onClick={() => setIsMobileDatesOpen(!isMobileDatesOpen)}
+                            className="fixed bottom-6 right-6 z-[99] md:hidden bg-gradient-to-r from-aetheria-gold to-[#e5c158] text-aetheria-navy p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border border-white/20"
+                            title="Choose Dates"
+                        >
+                            {isMobileDatesOpen ? <X className="w-6 h-6 font-bold" /> : <Calendar className="w-6 h-6" />}
+                        </button>
+
+                        {/* Mobile Dates Drawer */}
+                        {isMobileDatesOpen && (
+                            <div className="fixed inset-0 z-[98] md:hidden flex items-end justify-center">
+                                {/* Backdrop */}
+                                <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setIsMobileDatesOpen(false)}></div>
+                                
+                                {/* Drawer Panel */}
+                                <div className="relative w-full bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-6 space-y-5 animate-in slide-in-from-bottom duration-300 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] max-h-[85vh] overflow-y-auto">
+                                    <div className="flex justify-between items-center border-b border-white/10 pb-4">
+                                        <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2">
+                                            <Calendar className="w-5 h-5 text-aetheria-gold" /> Select Stay Dates
+                                        </h3>
+                                        <button onClick={() => setIsMobileDatesOpen(false)} className="text-gray-400 hover:text-white">
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3.5 bg-white/[0.03] px-4 py-3 rounded-xl border border-white/5 shadow-sm">
+                                            <div className="p-2.5 bg-aetheria-gold/10 rounded-lg text-aetheria-gold flex-shrink-0">
+                                                <Calendar className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col w-full">
+                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1">Check In</span>
+                                                <input type="datetime-local" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="bg-transparent text-sm font-semibold focus:outline-none text-white w-full appearance-none [&::-webkit-calendar-picker-indicator]:invert mt-0.5" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3.5 bg-white/[0.03] px-4 py-3 rounded-xl border border-white/5 shadow-sm">
+                                            <div className="p-2.5 bg-aetheria-gold/10 rounded-lg text-aetheria-gold flex-shrink-0">
+                                                <Calendar className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col w-full">
+                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1">Check Out</span>
+                                                <input type="datetime-local" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="bg-transparent text-sm font-semibold focus:outline-none text-white w-full appearance-none [&::-webkit-calendar-picker-indicator]:invert mt-0.5" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3.5 bg-white/[0.03] px-4 py-3 rounded-xl border border-white/5 shadow-sm">
+                                            <div className="p-2.5 bg-aetheria-gold/10 rounded-lg text-aetheria-gold flex-shrink-0">
+                                                <Users className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col w-full">
+                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Guests</span>
+                                                <select value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="bg-transparent text-sm font-semibold focus:outline-none text-white appearance-none w-full mt-0.5 cursor-pointer">{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (<option key={num} value={num} className="text-black">{num} Guest{num > 1 ? 's' : ''}</option>))}</select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button 
+                                        onClick={() => {
+                                            document.getElementById('rooms-section')?.scrollIntoView({ behavior: 'smooth' });
+                                            setIsMobileDatesOpen(false);
+                                        }} 
+                                        className="w-full bg-gradient-to-r from-aetheria-gold to-[#e5c158] text-aetheria-navy font-bold py-4 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        <Search className="w-4 h-4" /> Search Rooms
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <section id="rooms-section" className="max-w-7xl mx-auto py-12 px-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
