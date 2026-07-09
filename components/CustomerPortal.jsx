@@ -121,6 +121,18 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
     const [isUploading, setIsUploading] = useState(false);
     const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
 
+    const [localName, setLocalName] = useState(profile?.name || '');
+    const [localPhone, setLocalPhone] = useState(profile?.phone || '');
+    const [localAddress, setLocalAddress] = useState(profile?.address || '');
+
+    useEffect(() => {
+        if (profile) {
+            setLocalName(profile.name || '');
+            setLocalPhone(profile.phone || '');
+            setLocalAddress(profile.address || '');
+        }
+    }, [profile]);
+
     // NEW: state for the Add Card modal
     const [newCardDetails, setNewCardDetails] = useState({ number: '', expiry: '', cvv: '', name: '' });
 
@@ -945,20 +957,59 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <h2 className="text-2xl font-serif text-white mb-6">Personal Information</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {['Full Name', 'Email Address', 'Phone Number', 'Address'].map(label => (
-                                    <div key={label} className="space-y-2">
-                                        <label className="text-xs uppercase text-gray-500 font-bold">{label}</label>
-                                        <input
-                                            type="text"
-                                            value={label === 'Full Name' ? profile.name : label === 'Email Address' ? profile.email : label === 'Phone Number' ? profile.phone : profile.address}
-                                            onChange={(e) => onUpdateProfile({
-                                                ...profile,
-                                                [label === 'Full Name' ? 'name' : label === 'Email Address' ? 'email' : label === 'Phone Number' ? 'phone' : 'address']: e.target.value
-                                            })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-aetheria-gold outline-none"
-                                        />
-                                    </div>
-                                ))}
+                                <div className="space-y-2">
+                                    <label className="text-xs uppercase text-gray-500 font-bold">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={localName}
+                                        onChange={(e) => setLocalName(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-aetheria-gold outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs uppercase text-gray-500 font-bold">Email Address</label>
+                                    <input
+                                        type="text"
+                                        value={profile?.email || ''}
+                                        readOnly
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-gray-400 cursor-not-allowed outline-none"
+                                        title="Email address is associated with your credentials and cannot be modified."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs uppercase text-gray-500 font-bold">Phone Number</label>
+                                    <input
+                                        type="text"
+                                        value={localPhone}
+                                        onChange={(e) => setLocalPhone(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-aetheria-gold outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs uppercase text-gray-500 font-bold">Address</label>
+                                    <input
+                                        type="text"
+                                        value={localAddress}
+                                        onChange={(e) => setLocalAddress(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-aetheria-gold outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-end pt-4">
+                                <button
+                                    onClick={() => {
+                                        onUpdateProfile({
+                                            ...profile,
+                                            name: localName,
+                                            phone: localPhone,
+                                            address: localAddress
+                                        });
+                                        alert('Personal details saved successfully!');
+                                    }}
+                                    className="bg-aetheria-gold text-aetheria-navy font-bold py-3 px-8 rounded hover:bg-white transition-colors"
+                                >
+                                    Save Details
+                                </button>
                             </div>
                         </div>
                     )}
