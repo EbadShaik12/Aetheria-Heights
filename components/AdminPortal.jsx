@@ -105,8 +105,12 @@ const AdminPortal = ({
     onAddOffer, onEditOffer, onDeleteOffer,
     onUpdateProfile, user, onLogout
 }) => {
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'dashboard');
     const [selectedBooking, setSelectedBooking] = useState(null);
+
+    useEffect(() => {
+        localStorage.setItem('adminActiveTab', activeTab);
+    }, [activeTab]);
 
     // Get current admin profile
     const adminProfile = profiles.find(p => p.email === user.email);
@@ -1665,7 +1669,25 @@ const AdminPortal = ({
                         <div className="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden">
                             <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                                 <h3 className="text-xl font-serif text-white">Document Verification</h3>
-                                <button onClick={() => setDocumentToView(null)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
+                                <div className="flex items-center gap-3">
+                                    {documentToView.fileData && (
+                                        <button
+                                            onClick={() => {
+                                                const link = document.createElement('a');
+                                                link.href = documentToView.fileData;
+                                                link.download = documentToView.fileName || 'download';
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            }}
+                                            className="flex items-center gap-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                            Download
+                                        </button>
+                                    )}
+                                    <button onClick={() => setDocumentToView(null)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
+                                </div>
                             </div>
                             <div className="p-6">
                                 <div className="mb-4">

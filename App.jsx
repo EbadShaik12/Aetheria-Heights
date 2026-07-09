@@ -238,6 +238,7 @@ const App = () => {
     const fetchAll = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) return;
         const headers = { 'Authorization': `Bearer ${token}` };
 
         const [roomsRes, hallsRes, menuRes, bookingsRes, profilesRes, ordersRes, feedbackRes, offersRes] =
@@ -285,6 +286,8 @@ const App = () => {
     };
 
     fetchAll();
+    const interval = setInterval(fetchAll, 5000); // Polling every 5 seconds for real-time synchronization
+    return () => clearInterval(interval);
   }, [currentUser]);
 
   const handleLogin = (user) => {
@@ -296,6 +299,8 @@ const App = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('customerView');
+    localStorage.removeItem('adminActiveTab');
     setCurrentUser(null);
   };
 
