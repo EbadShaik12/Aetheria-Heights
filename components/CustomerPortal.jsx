@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, ArrowRight, Star, Wifi, Coffee, MapPin, X, CreditCard, CheckCircle, Loader2, QrCode, LogOut, Clock, Crown, ChevronLeft, ChevronRight, Banknote, Smartphone, Download, User as UserIcon, Settings, Shield, FileText, Upload, Trash2, Plus, AlertCircle, Sparkles, Music, Mic, Utensils, ShoppingBag, ChefHat, Minus, Mail, Phone, Map, Facebook, Instagram, Linkedin, Twitter, Camera, Lock, MessageCircle, HelpCircle, History, Info, Globe, Search } from 'lucide-react';
+import { Calendar, Users, ArrowRight, Star, Wifi, Coffee, MapPin, X, CreditCard, CheckCircle, Loader2, QrCode, LogOut, Clock, Crown, ChevronLeft, ChevronRight, Banknote, Smartphone, Download, User as UserIcon, Settings, Shield, FileText, Upload, Trash2, Plus, AlertCircle, Sparkles, Music, Mic, Utensils, ShoppingBag, ChefHat, Minus, Mail, Phone, Map, Facebook, Instagram, Linkedin, Twitter, Camera, Lock, MessageCircle, HelpCircle, History, Info, Globe, Search, Menu } from 'lucide-react';
 import PanoramaViewer from './PanoramaViewer';
 import { jsPDF } from "jspdf";
 import HotelMap from './HotelMap';
@@ -659,10 +659,22 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
         const file = e.target.files?.[0];
         if (file) {
             setIsUploading(true);
+            setUploadProgress(0);
 
             // Convert file to base64 for storage
             const reader = new FileReader();
-            reader.onload = (event) => {
+            
+            // Simulating a smooth upload progress counters
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress < 80) {
+                    progress += Math.floor(Math.random() * 15) + 5;
+                    if (progress > 80) progress = 80;
+                    setUploadProgress(progress);
+                }
+            }, 100);
+
+            reader.onload = async (event) => {
                 const base64 = event.target.result;
                 const newDoc = {
                     id: Date.now().toString(),
@@ -670,14 +682,28 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                     fileName: file.name,
                     fileData: base64, // Store actual file content
                     fileType: file.type,
-                    uploadDate: new Date().toISOString().split('T')[0],
+                    uploadDate: new Date().toISOString(), // Full date-time ISO string
                     status: 'Pending'
                 };
                 const currentDocs = profile.documents || [];
-                onUpdateProfile({ ...profile, documents: [...currentDocs, newDoc] });
-                setIsUploading(false);
-                // Reset value to allow re-upload
-                e.target.value = '';
+                setUploadProgress(90);
+
+                try {
+                    await onUpdateProfile({ ...profile, documents: [...currentDocs, newDoc] });
+                    clearInterval(interval);
+                    setUploadProgress(100);
+                    // Let the user see "100% Completed" for a moment
+                    setTimeout(() => {
+                        setIsUploading(false);
+                    }, 600);
+                } catch (err) {
+                    console.error("Upload failed", err);
+                    clearInterval(interval);
+                    setIsUploading(false);
+                } finally {
+                    // Reset value to allow re-upload
+                    e.target.value = '';
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -997,7 +1023,15 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                                     <div key={doc.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-lg">
                                         <div className="flex items-center gap-4">
                                             <div className="p-2 bg-slate-800 rounded text-aetheria-gold"><FileText className="w-6 h-6" /></div>
-                                            <div><div className="font-bold text-white">{doc.type}</div><div className="text-xs text-gray-500">{doc.fileName}</div></div>
+                                            <div>
+                                                <div className="font-bold text-white">{doc.type}</div>
+                                                <div className="text-xs text-gray-400">{doc.fileName}</div>
+                                                {doc.uploadDate && (
+                                                    <div className="text-[10px] text-gray-500 mt-1">
+                                                        Uploaded: {new Date(doc.uploadDate).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <span className={`text-xs px-2 py-1 rounded-full font-bold ${doc.status === 'Verified' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>{doc.status}</span>
                                         <button onClick={() => handleRemoveDocument(doc.id)} className="text-gray-500 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
@@ -1179,11 +1213,13 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
         </div>
     );
 
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     return (
         <div className="min-h-screen bg-aetheria-navy text-white font-sans selection:bg-aetheria-gold selection:text-aetheria-navy flex flex-col">
             {/* Navigation */}
             <nav className="fixed top-0 w-full z-50 bg-aetheria-navy/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex justify-between items-center shadow-lg">
-                <div className="text-2xl font-serif font-bold text-white cursor-pointer flex items-center gap-2" onClick={() => setView('HOME')}>
+                <div className="text-2xl font-serif font-bold text-white cursor-pointer flex items-center gap-2" onClick={() => { setView('HOME'); setIsMobileMenuOpen(false); }}>
                     <span className="text-aetheria-gold">✦</span> Aetheria.
                 </div>
 
@@ -1194,7 +1230,7 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                     <button onClick={() => setView('HOTELS_MAP')} className={`px-6 py-2 rounded-full flex items-center gap-2 text-sm font-bold transition-all ${view === 'HOTELS_MAP' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-400 hover:text-white'}`}><MapPin className="w-3 h-3" /> Discover</button>
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4 md:gap-6">
                     {/* User Menu Dropdown (Simplified as visible buttons for this layout) */}
                     <div className="hidden md:flex items-center gap-4 text-xs font-bold text-gray-400">
                         <button onClick={() => setView('MY_BOOKINGS')} className={`hover:text-white transition-colors ${view === 'MY_BOOKINGS' ? 'text-aetheria-gold' : ''}`}>My Bookings</button>
@@ -1211,9 +1247,30 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                             )}
                         </div>
                     </button>
+
+                    {/* Mobile Hamburger toggle */}
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="flex md:hidden text-gray-300 hover:text-white transition-colors p-1 rounded hover:bg-white/5 border border-white/10 bg-black/20">
+                        {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </button>
+
                     <button onClick={onLogout} className="text-gray-400 hover:text-red-400 transition-colors"><LogOut className="w-5 h-5" /></button>
                 </div>
             </nav>
+
+            {/* Mobile Navigation Dropdown Menu */}
+            {isMobileMenuOpen && (
+                <div className="fixed top-[68px] left-0 w-full z-40 bg-[#0B1120] border-b border-white/10 p-6 flex flex-col gap-3 animate-in slide-in-from-top duration-200 md:hidden">
+                    <button onClick={() => { setView('HOME'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'HOME' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Suites</button>
+                    <button onClick={() => { setView('HALLS'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'HALLS' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Event Halls</button>
+                    <button onClick={() => { setView('DINING'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'DINING' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Dining</button>
+                    <button onClick={() => { setView('HOTELS_MAP'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'HOTELS_MAP' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Discover</button>
+                    <div className="border-t border-white/10 my-2"></div>
+                    <button onClick={() => { setView('PROFILE'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'PROFILE' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>My Profile</button>
+                    <button onClick={() => { setView('MY_BOOKINGS'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'MY_BOOKINGS' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>My Reservations</button>
+                    <button onClick={() => { setView('FAQ'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'FAQ' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>FAQ</button>
+                    <button onClick={() => { setView('FEEDBACK'); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-lg text-left px-4 font-bold text-sm transition-all ${view === 'FEEDBACK' ? 'bg-aetheria-gold text-aetheria-navy' : 'text-gray-300 hover:bg-white/5'}`}>Feedback</button>
+                </div>
+            )}
 
             <div className="pt-20 flex-grow">
 
@@ -1650,9 +1707,16 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                                                 <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Attached Documents</div>
                                                 {profile.documents.map((doc) => (
                                                     <div key={doc.id} className="flex items-center justify-between bg-black/30 p-2 rounded border border-white/10 mb-2">
-                                                        <div className="flex items-center gap-2 overflow-hidden">
-                                                            <FileText className="w-4 h-4 text-aetheria-gold flex-shrink-0" />
-                                                            <span className="text-sm text-white truncate max-w-[150px]">{doc.fileName}</span>
+                                                        <div className="flex flex-col gap-0.5 overflow-hidden">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileText className="w-4 h-4 text-aetheria-gold flex-shrink-0" />
+                                                                <span className="text-sm text-white truncate max-w-[150px]">{doc.fileName}</span>
+                                                            </div>
+                                                            {doc.uploadDate && (
+                                                                <span className="text-[10px] text-gray-500 pl-6">
+                                                                    {new Date(doc.uploadDate).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${doc.status === 'Verified' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}`}>
                                                             {doc.status}

@@ -40,7 +40,8 @@ import {
     Eye,
     MessageSquareWarning,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Menu
 } from 'lucide-react';
 
 const ImageCarousel = ({ images, altText, className = "", imgClassName = "" }) => {
@@ -111,6 +112,7 @@ const AdminPortal = ({
     useEffect(() => {
         localStorage.setItem('adminActiveTab', activeTab);
     }, [activeTab]);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     // Get current admin profile
     const adminProfile = profiles.find(p => p.email === user.email);
@@ -1088,56 +1090,114 @@ const AdminPortal = ({
     return (
         <div className="min-h-screen bg-[#0B1120] text-slate-300 font-sans flex">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-slate-800 bg-[#0B1120] flex flex-col fixed h-full z-20">
-                <div className="p-6 border-b border-slate-800">
-                    <h2 className="text-xl font-serif font-bold text-white tracking-wide truncate">{adminProfile?.hotelName || 'AETHERIA'}</h2>
-                    <span className="text-xs text-aetheria-gold font-bold tracking-widest uppercase">Admin Portal</span>
-                </div>
+             {/* Desktop Sidebar (hidden on mobile) */}
+             <aside className="w-64 border-r border-slate-800 bg-[#0B1120] flex flex-col fixed h-full z-20 hidden lg:flex">
+                 <div className="p-6 border-b border-slate-800">
+                     <h2 className="text-xl font-serif font-bold text-white tracking-wide truncate">{adminProfile?.hotelName || 'AETHERIA'}</h2>
+                     <span className="text-xs text-aetheria-gold font-bold tracking-widest uppercase">Admin Portal</span>
+                 </div>
 
-                {/* User Mini Profile in Sidebar */}
-                <div className="p-6 flex flex-col items-center border-b border-slate-800 bg-slate-900/50">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-aetheria-gold/30 mb-3">
-                        {adminProfile?.profileImage ? (
-                            <img src={adminProfile.profileImage} alt="Admin" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full bg-slate-800 flex items-center justify-center text-xl font-serif text-slate-500">{user.name.charAt(0)}</div>
-                        )}
-                    </div>
-                    <div className="font-bold text-white text-center">{adminProfile?.name || user.name}</div>
-                    <div className="text-xs text-slate-500">{user.email}</div>
-                </div>
+                 {/* User Mini Profile in Sidebar */}
+                 <div className="p-6 flex flex-col items-center border-b border-slate-800 bg-slate-900/50">
+                     <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-aetheria-gold/30 mb-3">
+                         {adminProfile?.profileImage ? (
+                             <img src={adminProfile.profileImage} alt="Admin" className="w-full h-full object-cover" />
+                         ) : (
+                             <div className="w-full h-full bg-slate-800 flex items-center justify-center text-xl font-serif text-slate-500">{user.name.charAt(0)}</div>
+                         )}
+                     </div>
+                     <div className="font-bold text-white text-center">{adminProfile?.name || user.name}</div>
+                     <div className="text-xs text-slate-500">{user.email}</div>
+                 </div>
 
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto glass-scroll">
-                    {['dashboard', 'bookings', 'financial', 'guests', 'rooms', 'halls', 'dining', 'offers', 'reports', 'feedback', 'settings'].map((tab) => (
-                        <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors ${activeTab === tab ? 'bg-slate-800/50 text-aetheria-gold border-slate-700' : 'border-transparent hover:bg-slate-800/30'}`}>
-                            {tab === 'dashboard' && <LayoutDashboard className="w-5 h-5" />}
-                            {tab === 'bookings' && <CalendarCheck className="w-5 h-5" />}
-                            {tab === 'financial' && <Wallet className="w-5 h-5" />}
-                            {tab === 'guests' && <Users className="w-5 h-5" />}
-                            {tab === 'rooms' && <BedDouble className="w-5 h-5" />}
-                            {tab === 'halls' && <Landmark className="w-5 h-5" />}
-                            {tab === 'dining' && <Utensils className="w-5 h-5" />}
-                            {tab === 'offers' && <Gift className="w-5 h-5" />}
-                            {tab === 'reports' && <FileBarChart className="w-5 h-5" />}
-                            {tab === 'feedback' && <MessageSquareWarning className="w-5 h-5" />}
-                            {tab === 'settings' && <Settings className="w-5 h-5" />}
-                            <span className="capitalize">{tab}</span>
-                        </button>
-                    ))}
-                </nav>
-                <div className="p-4 border-t border-slate-800">
-                    <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><LogOut className="w-4 h-4" /> Sign Out</button>
-                </div>
-            </aside>
+                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto glass-scroll">
+                     {['dashboard', 'bookings', 'financial', 'guests', 'rooms', 'halls', 'dining', 'offers', 'reports', 'feedback', 'settings'].map((tab) => (
+                         <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors ${activeTab === tab ? 'bg-slate-800/50 text-aetheria-gold border-slate-700' : 'border-transparent hover:bg-slate-800/30'}`}>
+                             {tab === 'dashboard' && <LayoutDashboard className="w-5 h-5" />}
+                             {tab === 'bookings' && <CalendarCheck className="w-5 h-5" />}
+                             {tab === 'financial' && <Wallet className="w-5 h-5" />}
+                             {tab === 'guests' && <Users className="w-5 h-5" />}
+                             {tab === 'rooms' && <BedDouble className="w-5 h-5" />}
+                             {tab === 'halls' && <Landmark className="w-5 h-5" />}
+                             {tab === 'dining' && <Utensils className="w-5 h-5" />}
+                             {tab === 'offers' && <Gift className="w-5 h-5" />}
+                             {tab === 'reports' && <FileBarChart className="w-5 h-5" />}
+                             {tab === 'feedback' && <MessageSquareWarning className="w-5 h-5" />}
+                             {tab === 'settings' && <Settings className="w-5 h-5" />}
+                             <span className="capitalize">{tab}</span>
+                         </button>
+                     ))}
+                 </nav>
+                 <div className="p-4 border-t border-slate-800">
+                     <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><LogOut className="w-4 h-4" /> Sign Out</button>
+                 </div>
+             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 ml-64 p-8">
-                <header className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-white capitalize">{activeTab} Overview</h1>
-                    <div className="flex items-center gap-4">
-                        <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" /><input type="text" placeholder="Search..." className="bg-slate-900 border border-slate-700 rounded-full py-2 pl-10 pr-4 text-sm text-white" /></div>
-                    </div>
-                </header>
+             {/* Mobile Sidebar Slide-over Drawer */}
+             {isMobileSidebarOpen && (
+                 <>
+                     {/* Backdrop */}
+                     <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileSidebarOpen(false)}></div>
+                     {/* Drawer */}
+                     <aside className="w-64 border-r border-slate-800 bg-[#0B1120] flex flex-col fixed h-full z-40 lg:hidden animate-in slide-in-from-left duration-250">
+                         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+                             <div>
+                                 <h2 className="text-xl font-serif font-bold text-white tracking-wide truncate">{adminProfile?.hotelName || 'AETHERIA'}</h2>
+                                 <span className="text-xs text-aetheria-gold font-bold tracking-widest uppercase">Admin Portal</span>
+                             </div>
+                             <button onClick={() => setIsMobileSidebarOpen(false)} className="text-slate-500 hover:text-white"><X className="w-6 h-6" /></button>
+                         </div>
+
+                         <div className="p-6 flex flex-col items-center border-b border-slate-800 bg-slate-900/50">
+                             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-aetheria-gold/30 mb-3">
+                                 {adminProfile?.profileImage ? (
+                                     <img src={adminProfile.profileImage} alt="Admin" className="w-full h-full object-cover" />
+                                 ) : (
+                                     <div className="w-full h-full bg-slate-800 flex items-center justify-center text-xl font-serif text-slate-500">{user.name.charAt(0)}</div>
+                                 )}
+                             </div>
+                             <div className="font-bold text-white text-center">{adminProfile?.name || user.name}</div>
+                             <div className="text-xs text-slate-500">{user.email}</div>
+                         </div>
+
+                         <nav className="flex-1 p-4 space-y-2 overflow-y-auto glass-scroll">
+                             {['dashboard', 'bookings', 'financial', 'guests', 'rooms', 'halls', 'dining', 'offers', 'reports', 'feedback', 'settings'].map((tab) => (
+                                 <button key={tab} onClick={() => { setActiveTab(tab); setIsMobileSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors ${activeTab === tab ? 'bg-slate-800/50 text-aetheria-gold border-slate-700' : 'border-transparent hover:bg-slate-800/30'}`}>
+                                     {tab === 'dashboard' && <LayoutDashboard className="w-5 h-5" />}
+                                     {tab === 'bookings' && <CalendarCheck className="w-5 h-5" />}
+                                     {tab === 'financial' && <Wallet className="w-5 h-5" />}
+                                     {tab === 'guests' && <Users className="w-5 h-5" />}
+                                     {tab === 'rooms' && <BedDouble className="w-5 h-5" />}
+                                     {tab === 'halls' && <Landmark className="w-5 h-5" />}
+                                     {tab === 'dining' && <Utensils className="w-5 h-5" />}
+                                     {tab === 'offers' && <Gift className="w-5 h-5" />}
+                                     {tab === 'reports' && <FileBarChart className="w-5 h-5" />}
+                                     {tab === 'feedback' && <MessageSquareWarning className="w-5 h-5" />}
+                                     {tab === 'settings' && <Settings className="w-5 h-5" />}
+                                     <span className="capitalize">{tab}</span>
+                                 </button>
+                             ))}
+                         </nav>
+                         <div className="p-4 border-t border-slate-800">
+                             <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><LogOut className="w-4 h-4" /> Sign Out</button>
+                         </div>
+                     </aside>
+                 </>
+             )}
+
+             {/* Main Content */}
+             <main className="flex-1 lg:ml-64 p-4 lg:p-8">
+                 <header className="flex justify-between items-center mb-8 gap-4">
+                     <div className="flex items-center gap-3">
+                         <button onClick={() => setIsMobileSidebarOpen(true)} className="lg:hidden text-slate-400 hover:text-white p-2 border border-slate-800 rounded bg-slate-900/50 transition-colors">
+                             <Menu className="w-5 h-5" />
+                         </button>
+                         <h1 className="text-xl lg:text-2xl font-bold text-white capitalize">{activeTab} Overview</h1>
+                     </div>
+                     <div className="flex items-center gap-4">
+                         <div className="relative hidden md:block"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" /><input type="text" placeholder="Search..." className="bg-slate-900 border border-slate-700 rounded-full py-2 pl-10 pr-4 text-sm text-white" /></div>
+                     </div>
+                 </header>
 
                 {activeTab === 'dashboard' && renderDashboard()}
                 {activeTab === 'bookings' && renderBookings()}
@@ -1280,6 +1340,11 @@ const AdminPortal = ({
                                                                 <div>
                                                                     <div className="text-sm font-bold text-white">{doc.type}</div>
                                                                     <div className="text-xs text-slate-500">{doc.fileName}</div>
+                                                                    {doc.uploadDate && (
+                                                                        <div className="text-[10px] text-slate-500 mt-0.5">
+                                                                            Uploaded: {new Date(doc.uploadDate).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-2">
@@ -1695,7 +1760,9 @@ const AdminPortal = ({
                                     <div className="flex gap-4 text-sm text-slate-400">
                                         <span>Type: {documentToView.type}</span>
                                         <span>Status: <span className={`font-bold ${documentToView.status === 'Verified' ? 'text-green-400' : documentToView.status === 'Rejected' ? 'text-red-400' : 'text-amber-400'}`}>{documentToView.status}</span></span>
-                                        <span>Uploaded: {documentToView.uploadDate}</span>
+                                        {documentToView.uploadDate && (
+                                             <span>Uploaded: {new Date(documentToView.uploadDate).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}</span>
+                                        )}
                                     </div>
                                 </div>
 
