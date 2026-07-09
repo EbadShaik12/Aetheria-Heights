@@ -6,6 +6,9 @@ import Auth from './components/Auth';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3002' : '');
 
+// Normalize MongoDB _id to id string
+const normalize = (obj) => ({ ...obj, id: String(obj.id || obj._id || '') });
+
 // Initial Mock Data
 const INITIAL_ROOMS = [
   {
@@ -393,42 +396,53 @@ const App = () => {
 
   const handleAddRoom = async (newRoom) => {
     try {
+      const token = localStorage.getItem('token');
       const payload = { ...newRoom };
       delete payload.id;
+      delete payload._id;
       const res = await fetch(`${API_BASE}/api/rooms`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed'); }
       const saved = await res.json();
-      const roomWithId = { ...saved, id: saved.id || saved._id };
-      setRooms(prev => [...prev, roomWithId]);
+      setRooms(prev => [...prev, normalize(saved)]);
     } catch (err) {
       console.error('Failed to add room', err);
+      alert('Failed to add room: ' + err.message);
     }
   };
 
   const handleEditRoom = async (updatedRoom) => {
     try {
+      const token = localStorage.getItem('token');
       const payload = { ...updatedRoom };
-      const id = payload.id || payload._id;
+      const id = String(payload.id || payload._id);
       delete payload.id;
+      delete payload._id;
       const res = await fetch(`${API_BASE}/api/rooms/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed'); }
       const saved = await res.json();
-      const roomWithId = { ...saved, id: saved.id || saved._id };
+      const roomWithId = normalize(saved);
       setRooms(prev => prev.map(r => r.id === roomWithId.id ? roomWithId : r));
     } catch (err) {
       console.error('Failed to edit room', err);
+      alert('Failed to edit room: ' + err.message);
     }
   };
 
   const handleDeleteRoom = async (id) => {
     try {
-      await fetch(`${API_BASE}/api/rooms/${id}`, { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      await fetch(`${API_BASE}/api/rooms/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       setRooms(prev => prev.filter(r => r.id !== id));
     } catch (err) {
       console.error('Failed to delete room', err);
@@ -437,42 +451,52 @@ const App = () => {
 
   const handleAddHall = async (newHall) => {
     try {
+      const token = localStorage.getItem('token');
       const payload = { ...newHall };
       delete payload.id;
+      delete payload._id;
       const res = await fetch(`${API_BASE}/api/halls`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed'); }
       const saved = await res.json();
-      const hallWithId = { ...saved, id: saved.id || saved._id };
-      setHalls(prev => [...prev, hallWithId]);
+      setHalls(prev => [...prev, normalize(saved)]);
     } catch (err) {
       console.error('Failed to add hall', err);
+      alert('Failed to add hall: ' + err.message);
     }
   };
 
   const handleEditHall = async (updatedHall) => {
     try {
+      const token = localStorage.getItem('token');
       const payload = { ...updatedHall };
-      const id = payload.id || payload._id;
+      const id = String(payload.id || payload._id);
       delete payload.id;
+      delete payload._id;
       const res = await fetch(`${API_BASE}/api/halls/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed'); }
       const saved = await res.json();
-      const hallWithId = { ...saved, id: saved.id || saved._id };
-      setHalls(prev => prev.map(h => h.id === hallWithId.id ? hallWithId : h));
+      setHalls(prev => prev.map(h => h.id === normalize(saved).id ? normalize(saved) : h));
     } catch (err) {
       console.error('Failed to edit hall', err);
+      alert('Failed to edit hall: ' + err.message);
     }
   };
 
   const handleDeleteHall = async (id) => {
     try {
-      await fetch(`${API_BASE}/api/halls/${id}`, { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      await fetch(`${API_BASE}/api/halls/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       setHalls(prev => prev.filter(h => h.id !== id));
     } catch (err) {
       console.error('Failed to delete hall', err);
@@ -481,42 +505,53 @@ const App = () => {
 
   const handleAddMenuItem = async (newItem) => {
     try {
+      const token = localStorage.getItem('token');
       const payload = { ...newItem };
       delete payload.id;
+      delete payload._id;
       const res = await fetch(`${API_BASE}/api/menu-items`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed'); }
       const saved = await res.json();
-      const itemWithId = { ...saved, id: saved.id || saved._id };
-      setMenuItems(prev => [...prev, itemWithId]);
+      setMenuItems(prev => [...prev, normalize(saved)]);
     } catch (err) {
       console.error('Failed to add menu item', err);
+      alert('Failed to add menu item: ' + err.message);
     }
   };
 
   const handleEditMenuItem = async (updatedItem) => {
     try {
+      const token = localStorage.getItem('token');
       const payload = { ...updatedItem };
-      const id = payload.id || payload._id;
+      const id = String(payload.id || payload._id);
       delete payload.id;
+      delete payload._id;
       const res = await fetch(`${API_BASE}/api/menu-items/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed'); }
       const saved = await res.json();
-      const itemWithId = { ...saved, id: saved.id || saved._id };
+      const itemWithId = normalize(saved);
       setMenuItems(prev => prev.map(i => i.id === itemWithId.id ? itemWithId : i));
     } catch (err) {
       console.error('Failed to edit menu item', err);
+      alert('Failed to edit menu item: ' + err.message);
     }
   };
 
   const handleDeleteMenuItem = async (id) => {
     try {
-      await fetch(`${API_BASE}/api/menu-items/${id}`, { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      await fetch(`${API_BASE}/api/menu-items/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       setMenuItems(prev => prev.filter(i => i.id !== id));
     } catch (err) {
       console.error('Failed to delete menu item', err);
