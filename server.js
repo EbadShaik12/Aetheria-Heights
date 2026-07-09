@@ -933,10 +933,19 @@ app.delete('/api/bookings/:id', authenticate, requireAdmin, async (req, res) => 
 });
 
 // ====== PROFILES ======
-app.get('/api/profiles', async (req, res) => {
+app.get('/api/profiles', authenticate, async (req, res) => {
   try {
+    let filter = {};
     const { email } = req.query;
-    const filter = email ? { email } : {};
+
+    if (req.user.role === 'ADMIN') {
+      // Admin can see all profiles, or filter by email if provided
+      if (email) filter = { email };
+    } else {
+      // Guests can only see their own profile
+      filter = { email: req.user.email };
+    }
+
     const profiles = await Profile.find(filter);
     res.json(profiles);
   } catch (err) {

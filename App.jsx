@@ -227,7 +227,13 @@ const App = () => {
             fetch(`${API_BASE}/api/halls`, { headers }),
             fetch(`${API_BASE}/api/menu-items`, { headers }),
             fetch(`${API_BASE}/api/bookings`, { headers }),
-            fetch(`${API_BASE}/api/profiles?email=${encodeURIComponent(currentUser.email)}`, { headers }),
+            // Admin fetches ALL profiles; guest fetches only their own
+            fetch(
+              currentUser.role === 'ADMIN'
+                ? `${API_BASE}/api/profiles`
+                : `${API_BASE}/api/profiles?email=${encodeURIComponent(currentUser.email)}`,
+              { headers }
+            ),
             fetch(`${API_BASE}/api/dining-orders`, { headers }),
             fetch(`${API_BASE}/api/feedbacks`, { headers }),
             fetch(`${API_BASE}/api/offers`, { headers }),
@@ -246,20 +252,14 @@ const App = () => {
           ]);
 
         // Map Mongo _id to id so existing UI keeps working
-        setRooms(roomsData.map(r => ({ ...r, id: r.id || r._id })));
-        setHalls(hallsData.map(h => ({ ...h, id: h.id || h._id })));
-        setMenuItems(menuData.map(m => ({ ...m, id: m.id || m._id })));
-        setBookings(bookingsData.map(b => ({ ...b, id: b.id || b._id })));
-        setUserProfiles(prev => {
-          if (profilesData.length === 0) return prev;
-          const mapped = profilesData.map(p => ({ ...p, id: p.id || p._id }));
-          // merge/replace existing profile for this user
-          const others = prev.filter(p => p.email !== currentUser.email);
-          return [...others, ...mapped];
-        });
-        setDiningOrders(ordersData.map(o => ({ ...o, id: o.id || o._id })));
-        setFeedbacks(feedbackData.map(f => ({ ...f, id: f.id || f._id })));
-        setOffers(offersData.map(o => ({ ...o, id: o.id || o._id })));
+        setRooms(roomsData.map(r => normalize(r)));
+        setHalls(hallsData.map(h => normalize(h)));
+        setMenuItems(menuData.map(m => normalize(m)));
+        setBookings(bookingsData.map(b => normalize(b)));
+        setUserProfiles(profilesData.map(p => normalize(p)));
+        setDiningOrders(ordersData.map(o => normalize(o)));
+        setFeedbacks(feedbackData.map(f => normalize(f)));
+        setOffers(offersData.map(o => normalize(o)));
       } catch (err) {
         console.error('Failed to load data from backend, falling back to mock data', err);
       }
