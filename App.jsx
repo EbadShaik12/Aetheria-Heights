@@ -597,7 +597,10 @@ const App = () => {
       // Always update (or create) by email – simpler and avoids id issues
       const res = await fetch(`${API_BASE}/api/profiles/${encodeURIComponent(email)}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ ...payload, email })
       });
       const saved = await res.json();

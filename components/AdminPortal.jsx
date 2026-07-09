@@ -118,7 +118,11 @@ const AdminPortal = ({
     const adminProfile = profiles.find(p => p.email === user.email);
 
     // Guest Verification & Management State
-    const [selectedProfile, setSelectedProfile] = useState(null);
+    const [selectedProfileState, setSelectedProfileState] = useState(null);
+    const selectedProfile = selectedProfileState
+        ? (profiles.find(p => p.id === selectedProfileState.id || p.email === selectedProfileState.email) || selectedProfileState)
+        : null;
+    const setSelectedProfile = setSelectedProfileState;
     const [documentToVerify, setDocumentToVerify] = useState(null);
     const [documentToView, setDocumentToView] = useState(null);
     const [guestModalTab, setGuestModalTab] = useState('PROFILE');

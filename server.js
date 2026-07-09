@@ -982,11 +982,16 @@ app.post('/api/profiles', async (req, res) => {
 });
 
 // Update (or create) profile by email in URL param
-app.put('/api/profiles/:email', async (req, res) => {
+app.put('/api/profiles/:email', authenticate, async (req, res) => {
   try {
     const { email } = req.params;
     if (!email) {
       return res.status(400).json({ error: 'Email is required to update profile' });
+    }
+
+    // Security check: Only the user themselves or an ADMIN can update this profile
+    if (req.user.role !== 'ADMIN' && req.user.email !== email) {
+      return res.status(403).json({ error: 'Access denied: cannot modify another guest\'s profile' });
     }
 
     const updated = await Profile.findOneAndUpdate(
