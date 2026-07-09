@@ -176,9 +176,10 @@ const AdminPortal = ({
     const [amenitiesInput, setAmenitiesInput] = useState('');
     const [featuresInput, setFeaturesInput] = useState('');
 
-    // Update settings form when profile loads
+    // Update settings form when profile loads initially
+    const initializedRef = useRef(false);
     useEffect(() => {
-        if (adminProfile) {
+        if (adminProfile && !initializedRef.current) {
             setSettingsForm({
                 name: adminProfile.name,
                 hotelName: adminProfile.hotelName || 'Aetheria Heights',
@@ -186,6 +187,7 @@ const AdminPortal = ({
                 phone: adminProfile.phone || '',
                 location: adminProfile.location || ''
             });
+            initializedRef.current = true;
         }
     }, [adminProfile]);
 
@@ -614,6 +616,7 @@ const AdminPortal = ({
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     if (reader.result && adminProfile) {
+                        initializedRef.current = false;
                         onUpdateProfile({ ...adminProfile, profileImage: reader.result });
                     }
                 };
@@ -663,6 +666,7 @@ const AdminPortal = ({
     const handleUpdateSettings = (e) => {
         e.preventDefault();
         if (adminProfile) {
+            initializedRef.current = false;
             onUpdateProfile({
                 ...adminProfile,
                 name: settingsForm.name,
@@ -853,10 +857,6 @@ const AdminPortal = ({
                         <div className="relative h-48">
                             <ImageCarousel images={room.images} altText={room.type} />
                             <div className={`absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase border ${getStatusColor(room.status)} z-20 pointer-events-none`}>{room.status}</div>
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none z-10">
-                                <button onClick={() => handleOpenEditRoom(room)} className="p-2 bg-white text-black rounded-full hover:bg-aetheria-gold pointer-events-auto"><Pencil className="w-4 h-4" /></button>
-                                <button onClick={() => onDeleteRoom(room.id)} className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 pointer-events-auto"><Trash2 className="w-4 h-4" /></button>
-                            </div>
                         </div>
                         <div className="p-4">
                             <div className="flex justify-between items-start mb-2">
@@ -866,10 +866,16 @@ const AdminPortal = ({
                                 </div>
                                 <div className="text-aetheria-gold font-bold">₹{room.price}</div>
                             </div>
-                            <div className="flex gap-2 mb-4">
-                                <button onClick={() => onUpdateRoomStatus(room.id, 'Clean')} className={`text-[10px] px-2 py-1 rounded border ${room.status === 'Clean' ? 'bg-emerald-500 text-emerald-950 border-emerald-500' : 'border-slate-700 text-slate-500 hover:border-emerald-500 hover:text-emerald-500'}`}>Clean</button>
-                                <button onClick={() => onUpdateRoomStatus(room.id, 'Dirty')} className={`text-[10px] px-2 py-1 rounded border ${room.status === 'Dirty' ? 'bg-red-500 text-white border-red-500' : 'border-slate-700 text-slate-500 hover:border-red-500 hover:text-red-500'}`}>Dirty</button>
-                                <button onClick={() => onUpdateRoomStatus(room.id, 'Maintenance')} className={`text-[10px] px-2 py-1 rounded border ${room.status === 'Maintenance' ? 'bg-amber-500 text-amber-950 border-amber-500' : 'border-slate-700 text-slate-500 hover:border-amber-500 hover:text-amber-500'}`}>Maint.</button>
+                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-800">
+                                <div className="flex gap-2">
+                                    <button onClick={() => onUpdateRoomStatus(room.id, 'Clean')} className={`text-[10px] px-2 py-1 rounded border ${room.status === 'Clean' ? 'bg-emerald-500 text-emerald-950 border-emerald-500' : 'border-slate-700 text-slate-500 hover:border-emerald-500 hover:text-emerald-500'}`}>Clean</button>
+                                    <button onClick={() => onUpdateRoomStatus(room.id, 'Dirty')} className={`text-[10px] px-2 py-1 rounded border ${room.status === 'Dirty' ? 'bg-red-500 text-white border-red-500' : 'border-slate-700 text-slate-500 hover:border-red-500 hover:text-red-500'}`}>Dirty</button>
+                                    <button onClick={() => onUpdateRoomStatus(room.id, 'Maintenance')} className={`text-[10px] px-2 py-1 rounded border ${room.status === 'Maintenance' ? 'bg-amber-500 text-amber-950 border-amber-500' : 'border-slate-700 text-slate-500 hover:border-amber-500 hover:text-amber-500'}`}>Maint.</button>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => handleOpenEditRoom(room)} className="p-1.5 bg-slate-800 text-slate-300 hover:text-white rounded hover:bg-slate-700 transition-colors" title="Edit Room"><Pencil className="w-3.5 h-3.5" /></button>
+                                    <button onClick={() => onDeleteRoom(room.id)} className="p-1.5 bg-red-950/40 text-red-400 hover:text-red-200 rounded hover:bg-red-900/60 transition-colors" title="Delete Room"><Trash2 className="w-3.5 h-3.5" /></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -888,10 +894,6 @@ const AdminPortal = ({
                     <div key={hall.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden group hover:border-aetheria-gold/30 transition-all flex flex-col md:flex-row h-full md:h-48">
                         <div className="w-full md:w-48 relative">
                             <ImageCarousel images={hall.images} altText={hall.name} />
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none z-10">
-                                <button onClick={() => handleOpenEditHall(hall)} className="p-2 bg-white text-black rounded-full hover:bg-aetheria-gold pointer-events-auto"><Pencil className="w-4 h-4" /></button>
-                                <button onClick={() => onDeleteHall(hall.id)} className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 pointer-events-auto"><Trash2 className="w-4 h-4" /></button>
-                            </div>
                         </div>
                         <div className="p-4 flex-1 flex flex-col justify-between">
                             <div>
@@ -903,6 +905,10 @@ const AdminPortal = ({
                             </div>
                             <div className="flex justify-between items-end mt-4">
                                 <div className="text-aetheria-gold font-bold">₹{hall.pricePerHour}/hr</div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => handleOpenEditHall(hall)} className="p-1.5 bg-slate-800 text-slate-300 hover:text-white rounded hover:bg-slate-700 transition-colors" title="Edit Hall"><Pencil className="w-3.5 h-3.5" /></button>
+                                    <button onClick={() => onDeleteHall(hall.id)} className="p-1.5 bg-red-950/40 text-red-400 hover:text-red-200 rounded hover:bg-red-900/60 transition-colors" title="Delete Hall"><Trash2 className="w-3.5 h-3.5" /></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -918,21 +924,23 @@ const AdminPortal = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {menuItems.map(item => (
-                    <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden group hover:border-aetheria-gold/30 transition-all">
-                        <div className="relative h-40">
-                            <ImageCarousel images={item.images} altText={item.name} />
-                            <div className={`absolute top-2 left-2 px-2 py-1 rounded text-[10px] font-bold ${item.type === 'Veg' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'} z-20 pointer-events-none`}>{item.type}</div>
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none z-10">
-                                <button onClick={() => handleOpenEditMenu(item)} className="p-2 bg-white text-black rounded-full hover:bg-aetheria-gold pointer-events-auto"><Pencil className="w-4 h-4" /></button>
-                                <button onClick={() => onDeleteMenuItem(item.id)} className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 pointer-events-auto"><Trash2 className="w-4 h-4" /></button>
+                    <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden group hover:border-aetheria-gold/30 transition-all flex flex-col justify-between">
+                        <div>
+                            <div className="relative h-40">
+                                <ImageCarousel images={item.images} altText={item.name} />
+                                <div className={`absolute top-2 left-2 px-2 py-1 rounded text-[10px] font-bold ${item.type === 'Veg' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'} z-20 pointer-events-none`}>{item.type}</div>
+                            </div>
+                            <div className="p-4">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-bold text-white">{item.name}</h4>
+                                    <div className="text-aetheria-gold font-bold">₹{item.price}</div>
+                                </div>
+                                <p className="text-xs text-slate-500 line-clamp-2">{item.description}</p>
                             </div>
                         </div>
-                        <div className="p-4">
-                            <div className="flex justify-between items-start mb-2">
-                                <h4 className="font-bold text-white">{item.name}</h4>
-                                <div className="text-aetheria-gold font-bold">₹{item.price}</div>
-                            </div>
-                            <p className="text-xs text-slate-500 line-clamp-2">{item.description}</p>
+                        <div className="p-4 pt-0 flex justify-end gap-2">
+                            <button onClick={() => handleOpenEditMenu(item)} className="p-1.5 bg-slate-800 text-slate-300 hover:text-white rounded hover:bg-slate-700 transition-colors" title="Edit Dish"><Pencil className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => onDeleteMenuItem(item.id)} className="p-1.5 bg-red-950/40 text-red-400 hover:text-red-200 rounded hover:bg-red-900/60 transition-colors" title="Delete Dish"><Trash2 className="w-3.5 h-3.5" /></button>
                         </div>
                     </div>
                 ))}

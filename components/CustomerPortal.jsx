@@ -125,11 +125,13 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
     const [localPhone, setLocalPhone] = useState(profile?.phone || '');
     const [localAddress, setLocalAddress] = useState(profile?.address || '');
 
+    const initializedRef = useRef(false);
     useEffect(() => {
-        if (profile) {
+        if (profile && !initializedRef.current) {
             setLocalName(profile.name || '');
             setLocalPhone(profile.phone || '');
             setLocalAddress(profile.address || '');
+            initializedRef.current = true;
         }
     }, [profile]);
 
@@ -660,6 +662,7 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (reader.result) {
+                    initializedRef.current = false;
                     onUpdateProfile({ ...profile, profileImage: reader.result });
                 }
             };
@@ -998,6 +1001,7 @@ const CustomerPortal = ({ rooms, halls, menuItems, bookings, diningOrders, offer
                             <div className="flex justify-end pt-4">
                                 <button
                                     onClick={() => {
+                                        initializedRef.current = false;
                                         onUpdateProfile({
                                             ...profile,
                                             name: localName,
